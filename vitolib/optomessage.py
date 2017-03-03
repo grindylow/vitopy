@@ -5,7 +5,7 @@
 # Module encapsulating knowledge of the Viessmann OptoLink message format.
 
 from serial import *
-from optoexceptions import *
+from .optoexceptions import *
 
 class OptoMessage:
     def __init__(self, payload=b''):

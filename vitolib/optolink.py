@@ -5,7 +5,7 @@
 # Module for connecting to a Viessmann central heating system
 
 from serial import *
-import optomessage
+from . import optomessage
 
 class OptoLink:
 

@@ -4,8 +4,13 @@
 # With thanks to https://openv.wikispaces.com/
 
 import argparse
-import optolink
 import json
+import datetime
+from vitolib import optolink
+from vitolib.optomessage import *
+
+PROG='vitopy'
+VERSION='0.6'
 
 parser = argparse.ArgumentParser(description='Query Viessmann central heating systems.')
 parser.add_argument('--port', '-p', type=str,
@@ -13,14 +18,14 @@ parser.add_argument('--port', '-p', type=str,
                     default='/dev/ttyAMA0')
 parser.add_argument('--outfile', '-o', type=str,
                     help='name of output file that data will be appended to',
-                    default='vitoout.json')
+                    default='out/vitoout.json')
+parser.add_argument('--version', '-v', action='version', version='%s %s'%(PROG, VERSION))
 args = parser.parse_args()
 
 print(args)
 
 o = optolink.OptoLink()
 
-from optomessage import *
 #m = ReadRequest()
 #print([hex(x) for x in m.assemble()])
 #exit(1)
@@ -50,8 +55,14 @@ allreadings.update(dict(reply.get_readings_as_uint8()))
 o.deinit()
 o.close_port()
 
-data = [dict(comment="Read by vitopy", ts=1234, ts_iso8601="123T45", vals=allreadings)]
+now_utc = datetime.datetime.now(datetime.timezone.utc)
+ts = now_utc.timestamp()
+ts_iso8601 = now_utc.isoformat()
+
+data = [dict(comment="https://github.com/grindylow/vitopy",
+             generator="%s %s"%(PROG,VERSION),
+             ts=ts, ts_iso8601=ts_iso8601, vals=allreadings)]
 
 f = open(args.outfile,'a')
-f.write(json.dumps(data, sort_keys=True, indent=2))
+f.write(json.dumps(data, sort_keys=True, indent=2)+'\n')
 f.close()
