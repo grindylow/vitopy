@@ -1,0 +1,26 @@
+// Option 1  **selected this one for now**
+[
+ {
+  ts: 837523849234,
+  ts_iso8601: "2014-04-02T11:32:07+01:00"
+  vals: { addr1: val1,
+          addr2: val2,
+	  addr3: val3
+	}
+ }
+]
+
+
+// Option 2
+[
+  {
+    ts: 23472384723,
+    vals: [
+            { addr: 0x1234, val: 0x27 },
+	    { addr: 0x1236, val: 0x77, reason: 5 },
+	    { addr: 0x0800, val: 0xcb20 }
+	  ]
+  }
+]
+ 
+ 
