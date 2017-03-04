@@ -14,6 +14,9 @@ class CannotInterpretOddNumberOfBytesAsArrayOfIntegersException(BaseException):
 class ReceivedUnexpectedByteValueException(BaseException):
     pass
 
+class CannotInterpretNonDivisibleByFourNumberOfBytesAsArrayOf32BitIntegersException(BaseException):
+    pass
+
 if __name__ == "__main__":
     print("Not meant to be executed. May implement demo features here in the future.")
     

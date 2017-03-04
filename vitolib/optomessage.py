@@ -70,8 +70,25 @@ class ReadReply(OptoMessage):
         r = []
         for i in range(0,nrofbytes,2):
             val = struct.unpack('<h', self.my_payload[5+i:5+i+2])[0]
+            # values are apparently stored as little-endian
             r.append((addr, val))
             addr += 2
+        return r
+        
+    def get_readings_as_uint32(self):
+        """
+        Return an array of (addr,reading) tuples containing all
+        data in our payload, interpreted as unsigned 32-bit integers.
+        """
+        addr = struct.unpack('>H', self.my_payload[2:4])[0]
+        nrofbytes = self.my_payload[4]
+        if nrofbytes % 4 != 0:
+            raise CannotInterpretNonDivisibleByFourNumberOfBytesAsArrayOf32BitIntegersException
+        r = []
+        for i in range(0,nrofbytes,4):
+            val = struct.unpack('<I', self.my_payload[5+i:5+i+4])[0]
+            r.append((addr, val))
+            addr += 4
         return r
         
     def get_readings_as_uint8(self):
