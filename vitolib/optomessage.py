@@ -6,6 +6,8 @@
 
 from serial import *
 from .optoexceptions import *
+import logging
+import struct
 
 class OptoMessage:
     def __init__(self, payload=b''):
@@ -133,19 +135,19 @@ def read_msg(port):
         expect(port, 0x06)  # try once more before failing
     expect(port, 0x41)
     l = port.read()[0]   # Länge der Nutzdaten
-    print('reply length is %s' % l)
+    logging.info('reply length is %s' % l)
     payload = port.read(l)
     if len(payload) != l:
-        print('timeout while reading payload')
+        logging.warning('timeout while reading payload')
         raise(TimeoutWhileReadingPayloadException())
-    print('reply payload is %s' % [hex(b) for b in payload])
+    logging.info('reply payload is %s' % [hex(b) for b in payload])
     
     calculated_chksum = (l+sum(payload)) & 0xff
     chksum_in_msg = port.read()[0]
     if calculated_chksum != chksum_in_msg:
-        print('checksum mismatch: calculated: %s, is: %s' % (calculated_chksum, chksum_in_msg))
+        logging.warning('checksum mismatch: calculated: %s, is: %s' % (calculated_chksum, chksum_in_msg))
         raise(ChecksumMismatchException())
-    print('checksums match')
+    logging.debug('checksums match')
     return OptoMessage.create_from_payload(payload)
 
 
@@ -158,9 +160,9 @@ def expect(port, b):
     """
     s = port.read()
     if s==bytes([b]):
-        print('success: received %s' % hex(s[0]))
+        logging.info('success: received %s' % hex(s[0]))
     else:
-        print('expect failed: received %s' % hex(s[0]))
+        logging.warning('expect failed: received %s' % hex(s[0]))
         raise(ReceivedUnexpectedByteValueException())
 
 

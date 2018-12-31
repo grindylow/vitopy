@@ -8,9 +8,10 @@ import json
 import datetime
 from vitolib import optolink
 from vitolib.optomessage import *
+import logging
 
 PROG='vitopy'
-VERSION='0.71'
+VERSION='0.82'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Query Viessmann central heating systems.')
@@ -30,11 +31,13 @@ def retrieve_all_readings_as_per_configuration(o,cfg):
     readings = {}
     if 'datapoints' in cfg.keys():
         for line in cfg["datapoints"]:
-            print(line)
+            logging.debug(line)
             if type(line['addr']) is str:
                 line['addr'] = int(line['addr'],0)  # parse non-decimal numbers
             m = ReadRequest(line['addr'], line['bytes'])
+
             reply = o.query(m.assemble())
+                
             r = {}
             if 'uint8'==line['type']:
                 r = reply.get_readings_as_uint8()
@@ -53,17 +56,24 @@ def create_default_configuration():
 def parse_config_file(filename):
     cfg = create_default_configuration()
     if not os.path.isfile(filename):
-        print("Could not find %s."%filename)
+        logging.error("Could not find %s."%filename)
     else:
-        cfg = json.load(open(filename,'r'))
-    print(cfg)
+        cfg = json.load(open(filename,'r',encoding='cp437'))
+    logging.info(cfg)
     return cfg
 
+def setup_logging():
+    logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
     
 if __name__ == "__main__":
+    setup_logging()
+    logging.info("%s %s starting up at %s." % (
+        PROG,
+        VERSION,
+        datetime.datetime.now(datetime.timezone.utc).isoformat()))
+
     args = parse_args()
     config = parse_config_file(args.conf)
-    print("%s %s startung up at %s." % (PROG,VERSION,datetime.datetime.now(datetime.timezone.utc).isoformat()))
 
     o = optolink.OptoLink()
     o.open_port(args.port)

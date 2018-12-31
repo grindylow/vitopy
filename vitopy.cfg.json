@@ -20,12 +20,19 @@
 	{ "addr": "0x3906", "type":"uint8", "bytes":1 },
 	{ "addr": "0x0898", "type":"uint16", "bytes":2 },
 
-	{ "addr": "0x7660", "type":"uint8", "bytes":1, "desc":"boiler" },
-	{ "addr": "0x08a7", "type":"uint32", "bytes":4 },
-	{ "addr": "0x088a", "type":"uint32", "bytes":4 },
+	{ "addr": "0x7660", "type":"uint8", "bytes":1, "desc":"boiler internal pump" },
+	{ "addr": "0x08a7", "type":"uint32", "bytes":4, "desc":"boiler hours run"  },
+	{ "addr": "0x088a", "type":"uint32", "bytes":4, "desc":"boiler burner starts"  },
 
 	{ "addr": "0x6513", "type":"uint8", "bytes":1, "desc":"cylinder primary pump" },
-	{ "addr": "0x6552", "type":"uint8", "bytes":1 }
+	{ "addr": "0x6552", "type":"uint8", "bytes":1 },
+
+	{ "addr": "0x6568", "type":"uint16", "bytes":2, "desc":"solar hours run" },
+	{ "addr": "0x6560", "type":"uint32", "bytes":4, "desc":"solar heat amount" },
+	{ "addr": "0xcf30", "type":"uint32", "bytes":4, "desc":"solar yield current day" },
+
+	{ "addr": "0x2544", "type":"uint16", "bytes":2, "desc":"set flow temperature HC1" },
+	{ "addr": "0x3544", "type":"uint16", "bytes":2, "desc":"set flow temperature HC2" }
 
     ]
 }

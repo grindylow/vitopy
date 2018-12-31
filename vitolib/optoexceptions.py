@@ -2,19 +2,19 @@
 
 # optoexceptions.py
 
-class TimeoutWhileReadingPayloadException(BaseException):
+class TimeoutWhileReadingPayloadException(Exception):
     pass
 
-class ChecksumMismatchException(BaseException):
+class ChecksumMismatchException(Exception):
     pass
 
-class CannotInterpretOddNumberOfBytesAsArrayOfIntegersException(BaseException):
+class CannotInterpretOddNumberOfBytesAsArrayOfIntegersException(Exception):
     pass
 
-class ReceivedUnexpectedByteValueException(BaseException):
+class ReceivedUnexpectedByteValueException(Exception):
     pass
 
-class CannotInterpretNonDivisibleByFourNumberOfBytesAsArrayOf32BitIntegersException(BaseException):
+class CannotInterpretNonDivisibleByFourNumberOfBytesAsArrayOf32BitIntegersException(Exception):
     pass
 
 if __name__ == "__main__":
