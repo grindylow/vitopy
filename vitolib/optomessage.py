@@ -40,6 +40,7 @@ class ReadRequest(OptoMessage):
         payload = bytes([0x00, 0x01]) # request, read_data
         payload += struct.pack('>H', addr)
         payload += struct.pack('B', nrofbytes)
+        logging.info("read request for addr %s (%s bytes)" % (addr, nrofbytes))
         super().__init__(payload)
 
 class ReadReply(OptoMessage):
@@ -135,7 +136,7 @@ def read_msg(port):
         expect(port, 0x06)  # try once more before failing
     expect(port, 0x41)
     l = port.read()[0]   # Länge der Nutzdaten
-    logging.info('reply length is %s' % l)
+    logging.debug('reply length is %s' % l)
     payload = port.read(l)
     if len(payload) != l:
         logging.warning('timeout while reading payload')
@@ -160,7 +161,7 @@ def expect(port, b):
     """
     s = port.read()
     if s==bytes([b]):
-        logging.info('success: received %s' % hex(s[0]))
+        logging.debug('success: received %s' % hex(s[0]))
     else:
         logging.warning('expect failed: received %s' % hex(s[0]))
         raise(ReceivedUnexpectedByteValueException())

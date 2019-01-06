@@ -9,9 +9,13 @@ import datetime
 from vitolib import optolink
 from vitolib.optomessage import *
 import logging
+import signal
+from vcd import VCDWriter
+import paho.mqtt.client as mqtt   # pip3 install paho-mqtt
 
-PROG='vitopy'
-VERSION='0.82'
+PROG = 'vitopy'
+VERSION = '0.82'
+SIGINT = False
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Query Viessmann central heating systems.')
@@ -24,19 +28,39 @@ def parse_args():
     parser.add_argument('--conf', '-c', type=str,
                         help='name of configuration file (in JSON format)',
                         default='vitopy.cfg.json')
+    parser.add_argument('--vcd', action='store_true',
+                        help='cyclically output all variables to VCD file',
+                        default=False)
+    parser.add_argument('--publishmqtt', action='store_true',
+                        help='(try to) publish all polled vcd variables to local MQTT broker',
+                        default=False)
     parser.add_argument('--version', '-v', action='version', version='%s %s'%(PROG, VERSION))
     return parser.parse_args()
+
+def my_sigint_handler(signal, frame):
+    """
+    Called when program is interrupted with CTRL+C
+    """
+    global SIGINT
+    logging.info("SIGINT detected")
+    SIGINT = True
+    return
 
 def retrieve_all_readings_as_per_configuration(o,cfg):
     readings = {}
     if 'datapoints' in cfg.keys():
         for line in cfg["datapoints"]:
             logging.debug(line)
+            if not 'addr' in line:
+                continue
             if type(line['addr']) is str:
                 line['addr'] = int(line['addr'],0)  # parse non-decimal numbers
             m = ReadRequest(line['addr'], line['bytes'])
 
             reply = o.query(m.assemble())
+            if isinstance(reply, ErrorReply):
+                logging.warning('request for addr %s resulted in ErrorReply.'%hex(line['addr']))
+                continue
                 
             r = {}
             if 'uint8'==line['type']:
@@ -63,7 +87,75 @@ def parse_config_file(filename):
     return cfg
 
 def setup_logging():
-    logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(message)s')
+
+
+def log_to_vcd(cfg):
+    """
+    Cyclically poll heating and log results to VCD file.
+    """
+    global SIGINT
+
+    # set up VCD logging
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    vcdwriter = VCDWriter(open('vitopy1.vcd','w'),
+                          timescale='1s',
+                          init_timestamp=now_utc.timestamp())
+    vcdvars = {}
+    for v in config['datapoints']:
+        if not 'addr' in v:
+            continue
+        if not 'id' in v:
+            v['id'] = 'NOID'
+        if type(v['addr']) is str:
+            v['addr'] = int(v['addr'], 0)  # parse non-decimal numbers
+        name = '%s_%s'%(v['id'],v['addr'])
+        if 'uint8'==v['type']:
+            logging.info('Adding variable %s' % v['addr'])
+            vcdvars.update( { v['addr']: vcdwriter.register_var('vitopy',name,'integer',size=8) } )
+        if 'int8'==v['type']:
+            logging.info('Adding variable %s' % v['addr'])
+            vcdvars.update( { v['addr']: vcdwriter.register_var('vitopy',name,'integer',size=8) } )
+        if 'uint16'==v['type']:
+            logging.info('Adding variable %s' % v['addr'])
+            vcdvars.update( { v['addr']: vcdwriter.register_var('vitopy',name,'integer',size=16) } )
+        if 'uint32'==v['type']:
+            logging.info('Adding variable %s' % v['addr'])
+            vcdvars.update( { v['addr']: vcdwriter.register_var('vitopy',name,'integer',size=32) } )
+    
+    # poll heating
+    o = optolink.OptoLink()
+    o.open_port(args.port)
+    o.init()
+    while True:
+        logging.info('-- start of query --')
+        now_utc = datetime.datetime.now(datetime.timezone.utc)
+        allreadings = retrieve_all_readings_as_per_configuration(o,config)
+        print(allreadings)
+        
+        for k in allreadings.keys():
+            r = allreadings[k]
+            if k in vcdvars:
+                vcdwriter.change(vcdvars[k], now_utc.timestamp(), r)
+                if args.publishmqtt:
+                    mqttc.publish(str(k), r)
+            
+
+        vcdwriter.flush()
+        
+        for i in range(10):
+            time.sleep(1)
+            if SIGINT:
+                break
+        if SIGINT:
+            break
+        logging.info('-- end of query --')
+        
+    o.deinit()
+    o.close_port()
+    vcdwriter.close()
+    
+    return
     
 if __name__ == "__main__":
     setup_logging()
@@ -72,9 +164,23 @@ if __name__ == "__main__":
         VERSION,
         datetime.datetime.now(datetime.timezone.utc).isoformat()))
 
+    signal.signal(signal.SIGINT, my_sigint_handler)
+
     args = parse_args()
     config = parse_config_file(args.conf)
 
+    if args.publishmqtt:
+        mqttc = mqtt.Client("vitopy")
+        mqttc.enable_logger()
+        mqttc.connect("localhost")
+        mqttc.loop_start()
+    
+    if args.vcd:
+        log_to_vcd(config)
+        if args.publishmqtt:
+            mqttc.disconnect()
+        sys.exit(0)
+        
     o = optolink.OptoLink()
     o.open_port(args.port)
     o.init()

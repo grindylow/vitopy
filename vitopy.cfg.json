@@ -6,33 +6,79 @@
     
     "datapoints":
     [
-	{ "addr": "0x00f8", "type":"uint16", "bytes":2, "desc":"Gerätekennung" },
+	{ "addr": "0x00f8", "type":"uint16", "bytes":2, "id":"sys/id" },
 	{ "addr": "0x0800", "type":"int16", "bytes":32 },
 	{ "addr": "0x6564", "type":"int16", "bytes":4 },
-	{ "addr": "0x2301", "type":"uint8", "bytes":8, "desc":"Betriebszustände" },
+
+	{ "commment":"Bedienung (read write) A1M1: 0x23.. (M2: 0x33.., M3: 0x43.., wo vorhanden)" },
 	
-	{ "addr": "0x2500", "type":"uint8", "bytes":1, "desc":"HC1" },
-	{ "addr": "0x2906", "type":"uint8", "bytes":1 },
-	{ "addr": "0x0896", "type":"uint16", "bytes":2 },
+	{ "addr": "0x2301", "type":"uint8", "bytes":1, "desc":"Betriebsart",  "id":"hc1/mode" },
+	{ "addr": "0x2302", "type":"uint8", "bytes":1, "desc":"Sparbetrieb",  "id":"hc1/sparbetrieb" },
+	{ "addr": "0x2303", "type":"uint8", "bytes":1, "desc":"Partybetrieb", "id":"hc1/partybetrieb" },
 
-	{ "addr": "0x3500", "type":"uint8", "bytes":1, "desc":"HC2" },
-	{ "addr": "0x3900", "type":"uint16", "bytes":2 },
-	{ "addr": "0x3906", "type":"uint8", "bytes":1 },
-	{ "addr": "0x0898", "type":"uint16", "bytes":2 },
+	{ "addr": "0x3301", "type":"uint8", "bytes":1, "desc":"Betriebsart",  "id":"hc2/mode" },
+	{ "addr": "0x3302", "type":"uint8", "bytes":1, "desc":"Sparbetrieb",  "id":"hc2/sparbetrieb" },
+	{ "addr": "0x3303", "type":"uint8", "bytes":1, "desc":"Partybetrieb", "id":"hc2/partybetrieb" },
+	
+	{ "DUPLICATEaddr": "0x2303", "type":"uint8", "bytes":8, "desc":"Betriebszustände" },
 
-	{ "addr": "0x7660", "type":"uint8", "bytes":1, "desc":"boiler internal pump" },
-	{ "addr": "0x08a7", "type":"uint32", "bytes":4, "desc":"boiler hours run"  },
-	{ "addr": "0x088a", "type":"uint32", "bytes":4, "desc":"boiler burner starts"  },
+	{ "comment": "Betriebszustand detailliert (read only) (M2: 0x35.., M3: 0x45.., wo vorhanden)" },
+	{ "addr": "0x2500", "type":"uint8",  "bytes":1, "desc":"HC1",     "id":"hc1/current_mode_ro" },
+	{ "Xaddr": "0x2501", "type":"uint8",  "bytes":1, "desc":"HC1",     "id":"hc1.mode_ro" },
+	{ "Xaddr": "0x2502", "type":"uint32", "bytes":4, "desc":"HC1",     "id":"hc1.timer_aufheizphase" },
+	{ "Xaddr": "0x250a", "type":"uint8",  "bytes":1, "desc":"HC1",     "id":"hc1.heizkreispumpe" },
+	{ "Xaddr": "0x250b", "type":"uint8",  "bytes":1, "desc":"HC1",     "id":"hc1.raumaufschaltung" },
+	{ "Xaddr": "0x250c", "type":"uint16", "bytes":2, "desc":"HC1",     "id":"hc1.raum_solltemp" },
+	{ "Xaddr": "0x2510", "type":"uint8",  "bytes":2, "desc":"HC1",     "id":"hc1.frostgefahr" },
 
-	{ "addr": "0x6513", "type":"uint8", "bytes":1, "desc":"cylinder primary pump" },
-	{ "addr": "0x6552", "type":"uint8", "bytes":1 },
+	{ "addr": "0x3500", "type":"uint8",  "bytes":1, "desc":"HC2",     "id":"hc2/current_mode_ro" },
+	{ "Xaddr": "0x3501", "type":"uint8",  "bytes":1, "desc":"HC2",     "id":"hc2.mode_ro" },
+	{ "Xaddr": "0x3502", "type":"uint32", "bytes":4, "desc":"HC2",     "id":"hc2.timer_aufheizphase" },
+	{ "Xaddr": "0x350a", "type":"uint8",  "bytes":1, "desc":"HC2",     "id":"hc2.heizkreispumpe" },
+	{ "Xaddr": "0x350b", "type":"uint8",  "bytes":1, "desc":"HC2",     "id":"hc2.raumaufschaltung" },
+	{ "Xaddr": "0x350c", "type":"uint16", "bytes":2, "desc":"HC2",     "id":"hc2.raum_solltemp" },
+	{ "Xaddr": "0x3510", "type":"uint8",  "bytes":2, "desc":"HC2",     "id":"hc2.frostgefahr" },
 
-	{ "addr": "0x6568", "type":"uint16", "bytes":2, "desc":"solar hours run" },
-	{ "addr": "0x6560", "type":"uint32", "bytes":4, "desc":"solar heat amount" },
-	{ "addr": "0xcf30", "type":"uint32", "bytes":4, "desc":"solar yield current day" },
+	{ "addr": "0x2906", "type":"uint8", "bytes":1, "id":"hc1/heizkreispumpe_was_ist_das" },
+	{ "addr": "0x0896", "type":"uint16", "bytes":2, "id":"raumtemperatur_RTS" },
+	{ "addr": "0x0898", "type":"uint16", "bytes":2, "id":"raumtemperatur_RTS_M2" },
+	{ "addr": "0x0810", "type":"uint16", "bytes":2, "id":"sys/kesseltemperatur/tiefpass" },
+	{ "addr": "0x0812", "type":"uint16", "bytes":2, "id":"sys/speichertemperatur/sts1" },
+	{ "addr": "0x0814", "type":"uint16", "bytes":2, "id":"sys/speichertemperatur/sts2" },
 
-	{ "addr": "0x2544", "type":"uint16", "bytes":2, "desc":"set flow temperature HC1" },
-	{ "addr": "0x3544", "type":"uint16", "bytes":2, "desc":"set flow temperature HC2" }
+	{ "addr": "0x0806", "type":"uint16", "bytes":2, "id":"sys/speichertemperatur/sts2_alternative" },
+	{ "addr": "0x0808", "type":"uint16", "bytes":2, "id":"sys/abgastemperatur" },
+	
+	{ "DUPLICATEaddr": "0x3900", "type":"uint16", "bytes":2, "id":"0x3900" },
+	{ "addr": "0x3906", "type":"uint8", "bytes":1,  "id":"0x3906" },
+	{ "DUPLICATEaddr": "0x0898", "type":"uint16", "bytes":2, "id":"0x0898" },
+
+	{ "addr": "0x7660", "type":"uint8",  "bytes":1, "id":"boiler/internal_pump" },
+	{ "addr": "0x08a7", "type":"uint32", "bytes":4, "id":"boiler/hours_run"  },
+	{ "addr": "0x088a", "type":"uint32", "bytes":4, "id":"boiler/burner_starts"  },
+
+	{ "addr": "0x6513", "type":"uint8", "bytes":1, "id":"cylinder_primary_pump" },
+	{ "addr": "0x6552", "type":"uint8", "bytes":1, "id":"unknown1" },
+
+	{ "addr": "0x0845", "type":"uint8", "bytes":1, "id":"sys/speicherladepumpe" },
+	{ "addr": "0x0846", "type":"uint8", "bytes":1, "id":"sys/zirkulationspumpe" },
+
+	{ "addr": "0x6568", "type":"uint16", "bytes":2, "id":"solar/hours_run" },
+	{ "addr": "0x6560", "type":"uint32", "bytes":4, "id":"solar/heat_amount" },
+	{ "addr": "0xcf30", "type":"uint32", "bytes":4, "id":"solar/yield_current_day" },
+
+	{ "addr": "0x2544", "type":"uint16", "bytes":2, "id":"hc1/set_flow_temperature" },
+	{ "addr": "0x3544", "type":"uint16", "bytes":2, "id":"hc2/set_flow_temperature" },
+
+	{ "addr": "0x2900", "type":"uint16", "bytes":2, "id":"hc1/vorlauftemperatur" },
+	{ "addr": "0x3900", "type":"uint16", "bytes":2, "id":"hc2/vorlauftemperatur" },
+
+	{ "Xaddr": "0x254c", "type":"uint16", "bytes":2, "id":"hc1.mixer_position" },
+	{ "Xaddr": "0x354c", "type":"uint16", "bytes":2, "id":"hc2.mixer_position" },
+
+	{ "Xaddr": "0x0847", "type":"uint8",  "bytes":1, "desc":"",     "id":"sys.sammelstoerung" },
+	{ "addr": "0xa38f", "type":"uint16", "bytes":2, "desc":"",     "id":"sys/current_power" },
+	{ "addr": "0xa305", "type":"uint16", "bytes":2, "desc":"",     "id":"sys/burner_power" }
 
     ]
 }

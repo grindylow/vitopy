@@ -34,6 +34,7 @@ class OptoLink:
         self.deinit()  # just in case the heating was left "open" from a previous comms attempt
 
         # we wait for one 0x05
+        self.ser.reset_input_buffer()
         s = self.ser.read()
         if len(s)==1:
             if s==b'\x05':
